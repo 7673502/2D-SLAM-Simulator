@@ -46,6 +46,7 @@ async fn main() {
         
         // update direction
         dir += 0.5 * (angular_velocity + initial_angular_velocity) * delta_time;
+        dir = (dir + 2.0 * std::f32::consts::PI) % (2.0 * std::f32::consts::PI);
         
         // update position
         x += (0.5 * (linear_velocity + initial_linear_velocity) * delta_time) * dir.cos();
@@ -56,6 +57,8 @@ async fn main() {
         // draw "robot"; segment shows direction
         draw_circle(x, y, 48.0, BLUE);
         draw_line(x, y, x + 48.0 * dir.cos(), y + 48.0 * dir.sin(), 4.0, WHITE);
+        draw_text(&format!("pos: ({:.0}, {:.0})", x, y), 25.0, 50.0, 36.0, WHITE);
+        draw_text(&format!("angle: {:.2} rad", dir), 25.0, 100.0, 36.0, WHITE);
         
         // apply decay
         linear_velocity *= decay_factor.powf(delta_time);
