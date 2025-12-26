@@ -37,19 +37,20 @@ impl Robot {
         self.angular_velocity = self.angular_velocity.clamp(-cfg.max_angular_speed, cfg.max_angular_speed);
 
         // apply decay
-        self.linear_velocity *= cfg.decay_factor.powf(delta_time);
-        self.angular_velocity *= cfg.decay_factor.powf(delta_time);
+        self.linear_velocity *= cfg.alpha_linear_friction.powf(delta_time);
+        self.angular_velocity *= cfg.alpha_angular_friction.powf(delta_time);
         
-        self.linear_velocity = self.linear_velocity + cfg.alpha_linear  * self.linear_velocity.abs() * self.normal.sample(&mut self.rng);
-        self.angular_velocity = self.angular_velocity + cfg.alpha_angular * self.angular_velocity.abs() * self.normal.sample(&mut self.rng);
+        // add noise to velocity; uses separate variable to keep struct's velocities clean
+        let noisy_linear_velocity = self.linear_velocity + cfg.alpha_linear  * self.linear_velocity.abs() * self.normal.sample(&mut self.rng);
+        let noisy_angular_velocity = self.angular_velocity + cfg.alpha_angular * self.angular_velocity.abs() * self.normal.sample(&mut self.rng);
 
         // update direction
-        self.dir += 0.5 * (self.angular_velocity + self.prev_angular_velocity) * delta_time;
+        self.dir += 0.5 * (noisy_angular_velocity + self.prev_angular_velocity) * delta_time;
         self.dir = (self.dir + 2.0 * std::f32::consts::PI) % (2.0 * std::f32::consts::PI);
         
         // update position
-        self.x += (0.5 * (self.linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.cos();
-        self.y += (0.5 * (self.linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.sin();
+        self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.cos();
+        self.y += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.sin();
         self.x = self.x.clamp(cfg.robot_radius - screen_width() / 4.0, screen_width() / 4.0 - cfg.robot_radius);
         self.y = self.y.clamp(cfg.robot_radius - screen_height() / 2.0, screen_height() / 2.0 - cfg.robot_radius);
 
@@ -74,7 +75,7 @@ impl Robot {
         } 
 
         // needed for calculating x, y, and dir on next frame
-        self.prev_linear_velocity = self.linear_velocity;
-        self.prev_angular_velocity = self.angular_velocity;
+        self.prev_linear_velocity = noisy_linear_velocity;
+        self.prev_angular_velocity = noisy_angular_velocity;
     }
 }
