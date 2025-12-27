@@ -106,6 +106,8 @@ async fn main() {
         // ground truth text
         draw_text(&format!("pos: ({:.0}, {:.0})", robot.x, robot.y), 25.0, 50.0, 36.0, WHITE);
         draw_text(&format!("angle: {:.2} rad", robot.dir), 25.0, 100.0, 36.0, WHITE);
+        draw_text(&format!("lin vel: {:.2}", robot.linear_velocity), 25.0, 150.0, 36.0, WHITE);
+        draw_text(&format!("ang vel: {:.2}", robot.angular_velocity), 25.0, 200.0, 36.0, WHITE);
         
         // dividing line between ground truth world and robot's perceived world
         draw_line(screen_width() / 2.0, 0.0, screen_width() / 2.0, screen_height(), 4.0, WHITE);
