@@ -26,14 +26,14 @@ pub struct Config {
 impl Config {
     pub fn default() -> Self {
         Self {
-            linear_acc: 64.0,
+            linear_acc: 96.0,
             angular_acc: 6.0,
             robot_radius: 24.0,
-            max_linear_speed: 50.0,
+            max_linear_speed: 150.0,
             max_angular_speed: 1.5,
             alpha_linear: 0.03,
             alpha_angular: 0.01,
-            drag_linear: 1.5,
+            drag_linear: 3.9,
             drag_angular: 4.0,
             landmark_radius: 4.0,
             obstruction_width: 50.0,
