@@ -21,6 +21,9 @@ pub struct Config {
     // obstruction size
     pub obstruction_width: f32,
     pub obstruction_height: f32,
+
+    // camera
+    pub gt_zoom_factor: f32,
 }
 
 impl Config {
@@ -33,11 +36,12 @@ impl Config {
             max_angular_speed: 1.5,
             alpha_linear: 0.03,
             alpha_angular: 0.01,
-            drag_linear: 3.9,
+            drag_linear: 1.9,
             drag_angular: 4.0,
             landmark_radius: 4.0,
             obstruction_width: 50.0,
             obstruction_height: 50.0,
+            gt_zoom_factor: 1.0 / 250.0,
         }
     }
 }
