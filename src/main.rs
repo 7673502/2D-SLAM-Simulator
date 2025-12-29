@@ -30,7 +30,7 @@ async fn main() {
         let viewport_height = screen_height();
         let viewport_width = screen_width() / 2.0;
         
-        let camera = Camera2D {
+        let gt_camera = Camera2D {
                 target: vec2(robot.x, robot.y),
                 zoom: vec2(2.0 / cfg.horizontal_units, 2.0 / -cfg.horizontal_units * viewport_width / viewport_height),
                 viewport: Some((0, 0, viewport_width as i32, viewport_height as i32)),
@@ -57,7 +57,7 @@ async fn main() {
         
         // adding landmarks and obstructions
         let mouse_screen = mouse_position();
-        let mouse_world = camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
+        let mouse_world = gt_camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
 
         if mouse_screen.0 < viewport_width {
             if is_mouse_button_released(MouseButton::Left) {
@@ -106,12 +106,12 @@ async fn main() {
         /*
          * ground truth world
          */
-        set_camera(&camera);
+        set_camera(&gt_camera);
         
         // vertical gridlines
         let vertical_units = (cfg.horizontal_units / viewport_width) * viewport_height; // number of units present in viewport vertically
         let num_horizontal = (cfg.horizontal_units / cfg.grid_unit).floor() as i32 + 2;
-        let start_vertical_gridline = (robot.x - (robot.x % cfg.grid_unit)) - ((cfg.horizontal_units / 2.0) - ((cfg.horizontal_units / 2.0) % cfg.grid_unit));
+        let start_vertical_gridline = (robot.x - (robot.x % cfg.grid_unit)) - ((cfg.horizontal_units / 2.0) - ((cfg.horizontal_units / 2.0) % cfg.grid_unit)) - cfg.grid_unit;
         for i in 0..num_horizontal {
             draw_line(
                 start_vertical_gridline + cfg.grid_unit * i as f32,
