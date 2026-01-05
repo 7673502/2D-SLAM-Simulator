@@ -11,6 +11,11 @@ pub struct Config {
     pub alpha_linear: f32,
     pub alpha_angular: f32,
     
+    // sensor constants
+    pub sensor_range: f32,
+    pub sigma_range: f32,
+    pub sigma_bearing: f32,
+    
     // decay factor (friction) scalings
     pub drag_linear: f32,
     pub drag_angular: f32,
@@ -39,6 +44,9 @@ impl Config {
             max_angular_speed: 1.5,
             alpha_linear: 0.03,
             alpha_angular: 0.01,
+            sensor_range: 200.0,
+            sigma_range: 5.0,
+            sigma_bearing: 0.05,
             drag_linear: 1.9,
             drag_angular: 4.0,
             landmark_radius: 6.0,

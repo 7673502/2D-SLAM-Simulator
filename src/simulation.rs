@@ -16,6 +16,12 @@ pub struct Robot {
     normal: Normal<f32>,
 }
 
+pub struct Observation {
+    pub id: usize,
+    pub range: f32,
+    pub bearing: f32,
+}
+
 pub struct Landmark {
     pub id: usize,
     pub x: f32,
@@ -81,5 +87,39 @@ impl Robot {
         // needed for calculating x, y, and dir on next frame
         self.prev_linear_velocity = noisy_linear_velocity;
         self.prev_angular_velocity = noisy_angular_velocity;
+    }
+    
+    pub fn sense(&mut self, landmarks: &[Landmark], cfg: &Config) -> Vec<Observation> {
+        let mut observations = Vec::new();
+        
+        for landmark in landmarks.iter() {
+            let distance_x = landmark.x - self.x;
+            let distance_y = landmark.y - self.y;
+            
+            let gt_range = (distance_x * distance_x + distance_y * distance_y).sqrt();
+            
+            if gt_range < cfg.sensor_range {
+                // absolute angle of landmark from robot
+                let absolute_angle = f32::atan2(distance_y, distance_x);
+                let relative_angle = absolute_angle - self.dir;
+                
+                // normalize ground truth bearing to (-PI, PI]
+                let gt_bearing = f32::atan2(relative_angle.sin(), relative_angle.cos());
+                
+                let noisy_range = (gt_range + cfg.sigma_range * self.normal.sample(&mut self.rng)).max(0.0);
+                let mut noisy_bearing = gt_bearing + cfg.sigma_bearing * self.normal.sample(&mut self.rng);
+                noisy_bearing = f32::atan2(noisy_bearing.sin(), noisy_bearing.cos()); // normalization
+                
+                observations.push(
+                    Observation {
+                        id: landmark.id,
+                        range: noisy_range,
+                        bearing: noisy_bearing
+                    }
+                )
+            }
+        }
+
+        observations
     }
 }
