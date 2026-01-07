@@ -1,5 +1,5 @@
-use nalgebra::{DVector, DMatrix};
-use std::collections::HashMap;
+use nalgebra::{DMatrix, DVector, abs};
+use std::{collections::HashMap, path::absolute};
 use crate::simulation::Observation;
 
 pub struct EkfSlam {
@@ -78,9 +78,66 @@ impl EkfSlam {
     }
 
     /*
-     * EKF correction step
+     * Follows EKF sparse prediction equations from
+     * https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf
      */
     pub fn update(&mut self, observation: &Observation) {
+        match self.observed_landmarks.get(&observation.id) {
+            Some(&landmark_index) => {
+                self.correct_landmark(&observation, landmark_index);
+            }
+            None => {
+                self.initialize_landmark(observation);
+            }
+        }
+    }
+    
+    fn initialize_landmark(&mut self, observation: &Observation) {
+        todo!()
+    }
+    
+    fn correct_landmark(&self, observation: &Observation, landmark_index: usize) {
         todo!();
     }
+    
+    /*
+     * helper that converts relative position of landmark (range and bearing)
+     * to absolute (x, y) coordinates
+     */
+    fn relative_to_absolute(&mut self, range: f32, bearing: f32) -> (f32, f32) {
+        let robot_x = self.state[0];
+        let robot_y = self.state[1];
+        let robot_theta = self.state[2];
+
+        // absolute angle to landmark
+        let absolute_angle = robot_theta + bearing;
+        
+        let x = robot_x + range * absolute_angle.cos();
+        let y = robot_y + range * absolute_angle.sin();
+        
+        (x, y)
+    }
+    
+    /*
+     * helper that converts absolute position of landmark (x and y) to
+     * tuple of form (range, bearing)
+     */
+    fn absolute_to_relative(&self, x: f32, y: f32) -> (f32, f32) {
+        let robot_x = self.state[0];
+        let robot_y = self.state[1];
+        let robot_theta = self.state[2];
+        
+        // distance to landmark
+        let distance_x = x - robot_x;
+        let distance_y = y - robot_y;
+        let range = (distance_x * distance_x + distance_y * distance_y).sqrt();
+        
+        // calculate relative angle
+        let absolute_angle = f32::atan2(distance_y, distance_x);
+        let mut bearing = absolute_angle - robot_theta;
+        bearing = f32::atan2(bearing.sin(), bearing.cos()); // normalize to (-PI, PI]
+
+        (range, bearing)
+    }
+
 }
