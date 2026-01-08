@@ -10,7 +10,7 @@ use crate::simulation::Landmark;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "2D EKF SLAM Simulator".to_owned(),
+        window_title: "2D SLAM Simulator".to_owned(),
         window_width: 800,
         window_height: 600,
         window_resizable: true,
