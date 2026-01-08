@@ -1,11 +1,12 @@
 use macroquad::prelude::*;
 
+mod slam;
 mod simulation;
-mod ekf_slam;
 mod config;
 use config::Config;
 
 use crate::simulation::Landmark;
+use crate::slam::{Slam, EkfSlam};
 
 
 fn window_conf() -> Conf {
@@ -28,7 +29,7 @@ async fn main() {
     let mut landmarks: Vec<Landmark> = Vec::new();
 
     let mut robot = simulation::Robot::new();
-    let mut ekf_slam = ekf_slam::EkfSlam::new();
+    let mut ekf_slam = EkfSlam::new();
 
     loop {
         let viewport_height = screen_height();
@@ -61,7 +62,7 @@ async fn main() {
         robot.update(delta_time, &cfg, &obstructions);
 
         // ekf prediction step
-        ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time);
+        ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
         
         // ekf correction step
         let observations = robot.sense(&landmarks,&obstructions, &cfg);
@@ -170,8 +171,9 @@ async fn main() {
         draw_line(robot.x, robot.y, robot.x + cfg.robot_radius * robot.dir.cos(), robot.y + cfg.robot_radius * robot.dir.sin(), 4.0, SKYBLUE);
 
         // draw EKF "ghost"
-        draw_circle(ekf_slam.state[0], ekf_slam.state[1], cfg.robot_radius, Color::new(0.0, 1.0, 0.0, 0.5));
-        draw_line(ekf_slam.state[0], ekf_slam.state[1], ekf_slam.state[0] + cfg.robot_radius * ekf_slam.state[2].cos(), ekf_slam.state[1] + cfg.robot_radius * ekf_slam.state[2].sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
+        let (ekf_x, ekf_y, ekf_dir) = ekf_slam.get_state();
+        draw_circle(ekf_x, ekf_y, cfg.robot_radius, ekf_slam.color());
+        draw_line(ekf_x, ekf_y, ekf_x + cfg.robot_radius * ekf_dir.cos(), ekf_y + cfg.robot_radius * ekf_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
 
         next_frame().await
     }
