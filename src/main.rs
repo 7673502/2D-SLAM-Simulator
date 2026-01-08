@@ -175,6 +175,11 @@ async fn main() {
         draw_circle(ekf_x, ekf_y, cfg.robot_radius, ekf_slam.color());
         draw_line(ekf_x, ekf_y, ekf_x + cfg.robot_radius * ekf_dir.cos(), ekf_y + cfg.robot_radius * ekf_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
 
+        // EKF landmark estimates
+        for landmark in ekf_slam.get_landmarks() {
+            draw_circle(landmark.1, landmark.2, cfg.landmark_radius, ekf_slam.color());
+        }
+
         next_frame().await
     }
 }
