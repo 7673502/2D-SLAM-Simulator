@@ -58,7 +58,7 @@ impl Robot {
 
         // update direction
         self.dir += 0.5 * (noisy_angular_velocity + self.prev_angular_velocity) * delta_time;
-        self.dir = (self.dir + 2.0 * std::f32::consts::PI) % (2.0 * std::f32::consts::PI);
+        self.dir = f32::atan2(self.dir.sin(), self.dir.cos()); // normalize to (-PI, PI]
         
         // update position
         self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.cos();
