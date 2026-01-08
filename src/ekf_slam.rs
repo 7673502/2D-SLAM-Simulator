@@ -214,10 +214,7 @@ impl EkfSlam {
             p_rr, p_rl;
             p_lr, p_ll
         ];
-        let h_t_block = stack![
-            h_r.transpose();
-            h_l.transpose()
-        ];
+        let h_t_block = h_block.transpose();
 
         // innovation matrix
         let z_matrix = h_block * p_block * h_t_block + r;
@@ -234,6 +231,9 @@ impl EkfSlam {
         // update state and covariance
         self.state = &self.state + &k * z;
         self.covariance = &self.covariance - &k * z_matrix * k.transpose();
+
+        // force matrix to be symmetric to (hopefully) prevent covariance from exploding
+        self.covariance = (&self.covariance + self.covariance.transpose()) / 2.0;
 
         // normalize angle
         self.state[2] = f32::atan2(self.state[2].sin(), self.state[2].cos());
