@@ -64,7 +64,7 @@ async fn main() {
         ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time);
         
         // ekf correction step
-        let observations = robot.sense(&landmarks, &cfg);
+        let observations = robot.sense(&landmarks,&obstructions, &cfg);
         for observation in observations.iter() {
             ekf_slam.update(observation, &cfg);
         }

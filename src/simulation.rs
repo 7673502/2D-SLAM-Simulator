@@ -89,7 +89,7 @@ impl Robot {
         self.prev_angular_velocity = noisy_angular_velocity;
     }
     
-    pub fn sense(&mut self, landmarks: &[Landmark], cfg: &Config) -> Vec<Observation> {
+    pub fn sense(&mut self, landmarks: &[Landmark], obstructions: &[Rect], cfg: &Config) -> Vec<Observation> {
         let mut observations = Vec::new();
         
         for landmark in landmarks.iter() {
@@ -99,6 +99,17 @@ impl Robot {
             let gt_range = (distance_x * distance_x + distance_y * distance_y).sqrt();
             
             if gt_range < cfg.sensor_range {
+                let mut blocked = false; // flag for if current landmark is out of line of sight
+
+                for obstruction in obstructions.iter() {
+                    if self.liang_barsky(landmark, obstruction) { 
+                        blocked = true;
+                        break;
+                    }
+                }
+
+                if blocked { continue; }
+
                 // absolute angle of landmark from robot
                 let absolute_angle = f32::atan2(distance_y, distance_x);
                 let relative_angle = absolute_angle - self.dir;
@@ -121,5 +132,50 @@ impl Robot {
         }
 
         observations
+    }
+
+    /*
+     * Liang Barsky algorithm to check if segment intersects rectangle
+     * https://en.wikipedia.org/wiki/Liang%E2%80%93Barsky_algorithm
+     */
+    fn liang_barsky(&self, landmark: &Landmark, rect: &Rect) -> bool {
+        let x_min = rect.x;
+        let y_min = rect.y;
+        let x_max = rect.x + rect.w;
+        let y_max = rect.y + rect.h;
+
+        let x1 = self.x;
+        let y1 = self.y;
+        let x2 = landmark.x;
+        let y2 = landmark.y;
+
+        let p = [-(x2 - x1), x2 - x1, -(y2 - y1), y2 - y1];
+        let q = [x1 - x_min, x_max - x1, y1 - y_min, y_max - y1];
+
+        let mut u1: f32 = 0.0;
+        let mut u2: f32 = 1.0;
+
+        for i in 0..4 {
+            let p_current = p[i];
+            let q_current = q[i];
+
+            if p_current == 0.0 {
+                if q_current < 0.0 {
+                    return false;
+                }
+            } else {
+                let t = q_current / p_current;
+
+                if p_current < 0.0 {
+                    if t > u2 { return false; }
+                    if t > u1 { u1 = t; }
+                } else {
+                    if t < u1 { return false; }
+                    if t < u2 { u2 = t; }
+                }
+            }
+        }
+
+        u1 <= u2
     }
 }
