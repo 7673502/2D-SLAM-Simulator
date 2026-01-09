@@ -1,6 +1,6 @@
 pub mod trait_def;
-pub mod ekf_slam;
+pub mod ekf;
 
 pub use trait_def::Slam;
-pub use ekf_slam::EkfSlam;
+pub use ekf::EkfSlam;
 
