@@ -6,7 +6,7 @@ mod config;
 use config::Config;
 
 use crate::simulation::Landmark;
-use crate::slam::{Slam, EkfSlam};
+use crate::slam::{Slam, EkfSlam, FastSlam};
 
 
 fn window_conf() -> Conf {
