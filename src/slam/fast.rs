@@ -46,7 +46,7 @@ impl FastSlam {
 }
 
 impl Slam for FastSlam {
-    fn predict(&mut self, linear_vel: f32, angular_vel: f32, dt: f32, cfg: &Config) {
+    fn predict(&mut self, linear_vel: f32, angular_vel: f32, delta_time: f32, cfg: &Config) {
         todo!()
     }
 
