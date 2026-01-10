@@ -5,7 +5,7 @@ use crate::utils::sample_normal;
 pub struct Robot {
     pub x: f32,
     pub y: f32,
-    pub dir: f32,
+    pub theta: f32,
     pub linear_velocity: f32,
     pub angular_velocity: f32,
     prev_linear_velocity: f32,
@@ -29,7 +29,7 @@ impl Robot {
         Self {
             x: 0.0,
             y: 0.0,
-            dir: 0.0,
+            theta: 0.0,
             linear_velocity: 0.0,
             angular_velocity: 0.0,
             prev_linear_velocity: 0.0,
@@ -51,12 +51,12 @@ impl Robot {
         let noisy_angular_velocity = self.angular_velocity + sample_normal(0.0, cfg.real_stdev_angular * self.angular_velocity.abs());
 
         // update direction
-        self.dir += 0.5 * (noisy_angular_velocity + self.prev_angular_velocity) * delta_time;
-        self.dir = f32::atan2(self.dir.sin(), self.dir.cos()); // normalize to (-PI, PI]
+        self.theta += 0.5 * (noisy_angular_velocity + self.prev_angular_velocity) * delta_time;
+        self.theta = f32::atan2(self.theta.sin(), self.theta.cos()); // normalize to (-PI, PI]
         
         // update position
-        self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.cos();
-        self.y += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.dir.sin();
+        self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.theta.cos();
+        self.y += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.theta.sin();
 
         // detect obstruction
         for obstruction in obstructions.iter() {
@@ -106,7 +106,7 @@ impl Robot {
 
                 // absolute angle of landmark from robot
                 let absolute_angle = f32::atan2(distance_y, distance_x);
-                let relative_angle = absolute_angle - self.dir;
+                let relative_angle = absolute_angle - self.theta;
                 
                 // normalize ground truth bearing to (-PI, PI]
                 let gt_bearing = f32::atan2(relative_angle.sin(), relative_angle.cos());

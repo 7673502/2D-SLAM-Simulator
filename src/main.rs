@@ -172,7 +172,7 @@ async fn main() {
         // draw "robot"; segment shows direction
         draw_circle(robot.x, robot.y, cfg.robot_radius, SKYBLUE);
         draw_circle(robot.x, robot.y, cfg.robot_radius - 4.0, DARKPURPLE);
-        draw_line(robot.x, robot.y, robot.x + cfg.robot_radius * robot.dir.cos(), robot.y + cfg.robot_radius * robot.dir.sin(), 4.0, SKYBLUE);
+        draw_line(robot.x, robot.y, robot.x + cfg.robot_radius * robot.theta.cos(), robot.y + cfg.robot_radius * robot.theta.sin(), 4.0, SKYBLUE);
 
         // draw EKF "ghost"
         let (ekf_x, ekf_y, ekf_dir) = ekf_slam.get_state();
