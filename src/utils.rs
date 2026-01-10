@@ -12,3 +12,35 @@ pub fn sample_normal(mean: f32, std_dev: f32) -> f32 {
 
     mean + std_dev * z0 
 }
+
+/*
+ * helper that converts relative position of landmark (range and bearing)
+ * to absolute (x, y) coordinates
+ */
+pub fn relative_to_absolute(robot_x: f32, robot_y: f32, robot_theta: f32, range: f32, bearing: f32) -> (f32, f32) {
+    let absolute_angle = robot_theta + bearing;
+
+    let x = robot_x + range * absolute_angle.cos();
+    let y = robot_y + range * absolute_angle.sin();
+
+    (x, y)
+}
+
+/*
+ * helper that converts absolute position of landmark (x and y) to
+ * tuple of form (range, bearing)
+ */
+pub fn absolute_to_relative(robot_x: f32, robot_y: f32, robot_theta: f32, landmark_x: f32, landmark_y: f32) -> (f32, f32) {
+    
+    // distance to landmark
+    let distance_x = landmark_x - robot_x;
+    let distance_y = landmark_y - robot_y;
+    let range = (distance_x * distance_x + distance_y * distance_y).sqrt();
+    
+    // calculate relative angle
+    let absolute_angle = f32::atan2(distance_y, distance_x);
+    let mut bearing = absolute_angle - robot_theta;
+    bearing = f32::atan2(bearing.sin(), bearing.cos()); // normalize to (-PI, PI]
+
+    (range, bearing)
+}
