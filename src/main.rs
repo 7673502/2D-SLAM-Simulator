@@ -7,7 +7,7 @@ mod config;
 use config::Config;
 
 use crate::simulation::Landmark;
-use crate::slam::{Slam, EkfSlam, FastSlam};
+use crate::slam::{EkfSlam, FastSlam, Slam};
 
 
 fn window_conf() -> Conf {
@@ -31,6 +31,7 @@ async fn main() {
 
     let mut robot = simulation::Robot::new();
     let mut ekf_slam = EkfSlam::new();
+    let mut fast_slam = FastSlam::new(1000);
 
     loop {
         let viewport_height = screen_height();
@@ -64,10 +65,12 @@ async fn main() {
 
         // ekf prediction step
         ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
+        fast_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
         
         // ekf correction step
         let observations = robot.sense(&landmarks,&obstructions, &cfg);
         ekf_slam.update(&observations, &cfg);
+        fast_slam.update(&observations, &cfg);
 
         // adding landmarks and obstructions
         let mouse_screen = mouse_position();
@@ -180,6 +183,11 @@ async fn main() {
         for landmark in ekf_slam.get_landmarks() {
             draw_circle(landmark.1, landmark.2, cfg.landmark_radius, ekf_slam.color());
         }
+
+        // draw FastSLAM "ghost"
+        let (fast_x, fast_y, fast_dir) = fast_slam.get_state();
+        draw_circle(fast_x, fast_y, cfg.robot_radius, fast_slam.color());
+        draw_line(fast_x, fast_y, fast_x + cfg.robot_radius * fast_dir.cos(), fast_y + cfg.robot_radius * fast_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
 
         next_frame().await
     }
