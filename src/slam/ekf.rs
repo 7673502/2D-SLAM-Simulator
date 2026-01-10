@@ -1,5 +1,5 @@
 use std::{collections::HashMap};
-use nalgebra::{DMatrix, DVector, dvector, Matrix2x3, Matrix2, stack};
+use nalgebra::{DMatrix, DVector, Vector2, Matrix2x3, Matrix2, stack};
 use macroquad::prelude::Color;
 
 use crate::simulation::Observation;
@@ -117,7 +117,7 @@ impl EkfSlam {
         let bearing_difference = f32::atan2((observation.bearing - predicted_bearing).sin(), (observation.bearing - predicted_bearing).cos());
 
         // innovation vector
-        let z = dvector![range_difference, bearing_difference];
+        let z = Vector2::new(range_difference, bearing_difference);
 
         // distance to landmark
         let distance_x = landmark_x - robot_x;
