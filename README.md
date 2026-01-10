@@ -6,6 +6,7 @@ This is a work-in-progress Rust implementation of an [EKF-SLAM](https://www.iri.
 - good UI
 - start FastSLAM
 - start GraphSLAM
+- change "dir" to "theta" everywhere
 
 ## Notes
 - web deployment is working locally
