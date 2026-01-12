@@ -1,13 +1,14 @@
 use macroquad::prelude::*;
 
-mod utils;
-mod slam;
-mod simulation;
 mod config;
-use config::Config;
+mod simulation;
+mod slam;
+mod ui;
+mod utils;
 
-use crate::simulation::Landmark;
-use crate::slam::{EkfSlam, FastSlam, Slam};
+use config::Config;
+use simulation::Landmark;
+use slam::{EkfSlam, FastSlam, Slam};
 
 // loads font
 const FONT_BYTES: &[u8] = include_bytes!("../assets/fonts/GoogleSansCode-Medium.ttf");
@@ -133,68 +134,31 @@ async fn main() {
         clear_background(Color::new(0.1, 0.1, 0.1, 1.0));
         
         /*
-         * ground truth world
+         * robot rendering
          */
         set_camera(&gt_camera);
         
-        // vertical gridlines
-        let vertical_units = (cfg.horizontal_units / viewport_width) * viewport_height; // number of units present in viewport vertically
-        let num_horizontal = (cfg.horizontal_units / cfg.grid_unit).floor() as i32 + 2;
-        let start_vertical_gridline = (robot.x - (robot.x % cfg.grid_unit)) - ((cfg.horizontal_units / 2.0) - ((cfg.horizontal_units / 2.0) % cfg.grid_unit)) - cfg.grid_unit;
-        for i in 0..num_horizontal {
-            draw_line(
-                start_vertical_gridline + cfg.grid_unit * i as f32,
-                robot.y + vertical_units / 2.0 + 1.0,
-                start_vertical_gridline + cfg.grid_unit * i as f32,
-                robot.y - vertical_units / 2.0 - 1.0,
-                if (start_vertical_gridline + cfg.grid_unit * i as f32).abs() < 0.1 { 2.0 } else { 1.0 },
-                LIGHTGRAY
-            );
-        }
-
-        // horizontal gridlines
-        let num_vertical = (vertical_units / cfg.grid_unit).floor() as i32 + 2;
-        let start_horizontal_gridline = (robot.y - (robot.y % cfg.grid_unit)) - ((vertical_units / 2.0) - ((vertical_units / 2.0) % cfg.grid_unit)) - cfg.grid_unit;
-        for i in 0..num_vertical {
-            draw_line(
-                robot.x + cfg.horizontal_units / 2.0 + 1.0,
-                start_horizontal_gridline + cfg.grid_unit * i as f32,
-                robot.x - cfg.horizontal_units / 2.0 - 1.0,
-                start_horizontal_gridline + cfg.grid_unit * i as f32,
-                if (start_horizontal_gridline + cfg.grid_unit * i as f32).abs() < 0.1 { 2.0 } else { 1.0 },
-                LIGHTGRAY
-            );
-        }
+        ui::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, cfg.horizontal_units, cfg.grid_unit);
 
         // draw obstructions and landmarks
-        for obstruction in obstructions.iter() {
-            draw_rectangle(obstruction.x, obstruction.y, obstruction.w, obstruction.h, LIGHTGRAY);
-            draw_rectangle(obstruction.x + 4.0, obstruction.y + 4.0, obstruction.w - 8.0, obstruction.h - 8.0, GRAY);
-        }
-        for landmark in landmarks.iter() {
-            draw_circle(landmark.x, landmark.y, cfg.landmark_radius, RED);
-        }
+        ui::draw_obstructions(&obstructions);
+        ui::draw_landmarks(&landmarks, cfg.landmark_radius);
 
-        // draw "robot"; segment shows direction
-        draw_circle(robot.x, robot.y, cfg.robot_radius, SKYBLUE);
-        draw_circle(robot.x, robot.y, cfg.robot_radius - 2.0, DARKPURPLE);
-        draw_line(robot.x, robot.y, robot.x + cfg.robot_radius * robot.theta.cos(), robot.y + cfg.robot_radius * robot.theta.sin(), 2.0, SKYBLUE);
+        // draw "robot"
+        ui::draw_robot(robot.x, robot.y, robot.theta, cfg.robot_radius, BLUE, WHITE);
 
-        // draw EKF "ghost"
-        let (ekf_x, ekf_y, ekf_dir) = ekf_slam.get_state();
-        draw_circle(ekf_x, ekf_y, cfg.robot_radius, ekf_slam.color());
-        draw_line(ekf_x, ekf_y, ekf_x + cfg.robot_radius * ekf_dir.cos(), ekf_y + cfg.robot_radius * ekf_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
+        // SLAM "ghosts"
+        ui::draw_slam_state(&ekf_slam, cfg.robot_radius);
+        ui::draw_slam_state(&fast_slam, cfg.robot_radius);
 
-        // EKF landmark estimates
-        for landmark in ekf_slam.get_landmarks() {
-            draw_circle(landmark.1, landmark.2, cfg.landmark_radius, ekf_slam.color());
+        // draw landmark estimates
+        if cfg.show_landmark_estimates { 
+            ui::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius);
         }
 
-        // draw FastSLAM "ghost"
-        let (fast_x, fast_y, fast_dir) = fast_slam.get_state();
-        draw_circle(fast_x, fast_y, cfg.robot_radius, fast_slam.color());
-        draw_line(fast_x, fast_y, fast_x + cfg.robot_radius * fast_dir.cos(), fast_y + cfg.robot_radius * fast_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
-
+        /*
+         * UI
+         */
         set_default_camera();
         draw_text_ex("testing", 30.0, 40.0, TextParams { font: Some(&font), font_size: 20, ..Default::default() });
 
