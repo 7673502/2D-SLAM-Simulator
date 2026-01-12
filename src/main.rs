@@ -9,6 +9,8 @@ use config::Config;
 use crate::simulation::Landmark;
 use crate::slam::{EkfSlam, FastSlam, Slam};
 
+// loads font
+const FONT_BYTES: &[u8] = include_bytes!("../assets/fonts/GoogleSansCode-Medium.ttf");
 
 fn window_conf() -> Conf {
     Conf {
@@ -16,6 +18,7 @@ fn window_conf() -> Conf {
         window_width: 800,
         window_height: 600,
         window_resizable: true,
+        high_dpi: true,
         sample_count: 4,
         ..Default::default()
     }
@@ -25,6 +28,10 @@ fn window_conf() -> Conf {
 async fn main() {
     let cfg = Config::default();
     
+    // font
+    let font = load_ttf_font_from_bytes(FONT_BYTES)
+        .unwrap();
+
     // rectangles and landmarks
     let mut obstructions: Vec<Rect> = Vec::new();
     let mut landmarks: Vec<Landmark> = Vec::new();
@@ -40,7 +47,6 @@ async fn main() {
         let gt_camera = Camera2D {
             target: vec2(robot.x, robot.y),
             zoom: vec2(2.0 / cfg.horizontal_units, 2.0 / -cfg.horizontal_units * viewport_width / viewport_height),
-            viewport: Some((0, 0, viewport_width as i32, viewport_height as i32)),
             ..Default::default()
         };
         
@@ -188,6 +194,9 @@ async fn main() {
         let (fast_x, fast_y, fast_dir) = fast_slam.get_state();
         draw_circle(fast_x, fast_y, cfg.robot_radius, fast_slam.color());
         draw_line(fast_x, fast_y, fast_x + cfg.robot_radius * fast_dir.cos(), fast_y + cfg.robot_radius * fast_dir.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
+
+        set_default_camera();
+        draw_text_ex("testing", 30.0, 40.0, TextParams { font: Some(&font), font_size: 20, ..Default::default() });
 
         next_frame().await
     }
