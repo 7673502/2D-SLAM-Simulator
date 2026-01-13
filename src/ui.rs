@@ -50,7 +50,7 @@ pub fn draw_obstructions(obstructions: &[Rect]) {
 
 pub fn draw_landmarks(landmarks: &[Landmark], landmark_radius: f32) {
     for landmark in landmarks.iter() {
-        draw_circle(landmark.x, landmark.y, landmark_radius, RED);
+        draw_circle(landmark.x, landmark.y, landmark_radius, WHITE);
     }
 }
 
