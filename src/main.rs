@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 
-mod config;
-mod simulation;
+mod config; mod simulation;
 mod slam;
 mod ui;
 mod utils;
@@ -134,11 +133,16 @@ async fn main() {
         clear_background(Color::new(0.1, 0.1, 0.1, 1.0));
         
         /*
-         * robot rendering
+         * simulation rendering
          */
         set_camera(&gt_camera);
         
+        // gridlines
         ui::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, cfg.horizontal_units, cfg.grid_unit);
+
+        // shadows
+        ui::draw_robot_shadow(robot.x, robot.y, robot.theta, cfg.robot_radius);
+        ui::draw_obstructions_shadows(&obstructions);
 
         // draw obstructions and landmarks
         ui::draw_obstructions(&obstructions);
@@ -148,8 +152,8 @@ async fn main() {
         ui::draw_robot(robot.x, robot.y, robot.theta, cfg.robot_radius, BLUE, WHITE);
 
         // SLAM "ghosts"
-        ui::draw_slam_state(&ekf_slam, cfg.robot_radius);
-        ui::draw_slam_state(&fast_slam, cfg.robot_radius);
+        ui::draw_slam_state(&ekf_slam, cfg.robot_radius / 2.0);
+        ui::draw_slam_state(&fast_slam, cfg.robot_radius / 2.0);
 
         // draw landmark estimates
         if cfg.show_landmark_estimates { 

@@ -3,6 +3,9 @@ use macroquad::prelude::*;
 use crate::simulation::{Landmark};
 use crate::slam::Slam;
 
+const SHADOW_OFFSET: f32 = 15.0;
+const SHADOW_COLOR: Color = Color::new(0.0, 0.0, 0.0, 0.3);
+
 pub fn draw_gridlines(
     robot_x: f32,
     robot_y: f32,
@@ -21,8 +24,8 @@ pub fn draw_gridlines(
             robot_y + vertical_units / 2.0 + 1.0,
             start_vertical_gridline + grid_unit * i as f32,
             robot_y - vertical_units / 2.0 - 1.0,
-            if (start_vertical_gridline + grid_unit * i as f32).abs() < 0.1 { 2.0 } else { 1.0 },
-            LIGHTGRAY
+            1.0,
+            Color::new(0.4, 0.4, 0.4, 1.0)
         );
     }
 
@@ -35,16 +38,33 @@ pub fn draw_gridlines(
             start_horizontal_gridline + grid_unit * i as f32,
             robot_x - horizontal_units / 2.0 - 1.0,
             start_horizontal_gridline + grid_unit * i as f32,
-            if (start_horizontal_gridline + grid_unit * i as f32).abs() < 0.1 { 2.0 } else { 1.0 },
-            LIGHTGRAY
+            1.0,
+            Color::new(0.4, 0.4, 0.4, 1.0)
+        );
+    }
+}
+
+pub fn draw_obstructions_shadows(obstructions: &[Rect]) {
+    for obstruction in obstructions.iter() {
+        draw_rectangle(obstruction.x - SHADOW_OFFSET, obstruction.y - SHADOW_OFFSET, obstruction.w, obstruction.h, SHADOW_COLOR);
+        draw_triangle(
+            vec2(obstruction.x - SHADOW_OFFSET, obstruction.y + obstruction.h - SHADOW_OFFSET),
+            vec2(obstruction.x, obstruction.y + obstruction.h),
+            vec2(obstruction.x, obstruction.y + obstruction.h - SHADOW_OFFSET),
+            SHADOW_COLOR
+        );
+        draw_triangle(
+            vec2(obstruction.x + obstruction.w - SHADOW_OFFSET, obstruction.y - SHADOW_OFFSET),
+            vec2(obstruction.x + obstruction.w, obstruction.y),
+            vec2(obstruction.x + obstruction.w - SHADOW_OFFSET, obstruction.y),
+            SHADOW_COLOR
         );
     }
 }
 
 pub fn draw_obstructions(obstructions: &[Rect]) {
     for obstruction in obstructions.iter() {
-        draw_rectangle(obstruction.x, obstruction.y, obstruction.w, obstruction.h, LIGHTGRAY);
-        draw_rectangle(obstruction.x + 4.0, obstruction.y + 4.0, obstruction.w - 8.0, obstruction.h - 8.0, GRAY);
+        draw_rectangle(obstruction.x, obstruction.y, obstruction.w, obstruction.h, GRAY);
     }
 }
 
@@ -54,18 +74,20 @@ pub fn draw_landmarks(landmarks: &[Landmark], landmark_radius: f32) {
     }
 }
 
-pub fn draw_robot(x: f32, y: f32, theta: f32, radius: f32, fill_color: Color, outline_color: Color) {
+pub fn draw_robot_shadow(x: f32, y: f32, theta: f32, radius: f32) {
     // shadow
-    draw_circle(x - 5.0, y - 5.0, radius, Color::new(0.0, 0.0, 0.0, 1.0));
+    draw_rectangle_ex(x - SHADOW_OFFSET, y - SHADOW_OFFSET, 2.0 * radius, 1.5 * radius, DrawRectangleParams { offset: vec2(0.5, 0.5), rotation: theta, color: SHADOW_COLOR });
+}
 
-    draw_circle(x, y, radius, fill_color);
+pub fn draw_robot(x: f32, y: f32, theta: f32, radius: f32, fill_color: Color, outline_color: Color) {
+    draw_rectangle_ex(x, y, 2.0 * radius, 1.5 * radius, DrawRectangleParams { offset: vec2(0.5, 0.5), rotation: theta, color: fill_color });
     draw_circle(x + 0.5 * radius * theta.cos(), y + 0.5 * radius * theta.sin(), radius / 6.0, outline_color);
 }
 
 pub fn draw_slam_state(slam: &dyn Slam, radius: f32) {
     let (x, y, theta) = slam.get_state();
     draw_circle(x, y, radius, slam.color());
-    draw_line(x, y, x + radius * theta.cos(), y + radius * theta.sin(), 4.0, Color::new(0.0, 0.0, 0.0, 0.5));
+    draw_line(x, y, x + radius * theta.cos(), y + radius * theta.sin(), 1.0, Color::new(0.0, 0.0, 0.0, 0.5));
 }
 
 pub fn draw_slam_landmarks(slam: &dyn Slam, radius: f32) {
