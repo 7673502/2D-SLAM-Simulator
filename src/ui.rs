@@ -87,17 +87,17 @@ pub fn draw_robot(x: f32, y: f32, theta: f32, radius: f32, fill_color: Color, ou
 
 pub fn draw_slam_state(slam: &dyn Slam, radius: f32) {
     let (x, y, theta) = slam.get_state();
-    draw_circle(x, y, radius / 4.0, slam.color());
-    draw_circle_lines(x, y, radius, radius / 2.0, slam.color());
-    draw_arc(
-        x,
-        y,
-        50,
-        radius,
-        theta.to_degrees() - 45.0 / 2.0,
-        radius / 2.0,
-        45.0,
-        Color::new(0.8, 0.8, 0.8, 0.5)
+    let thickness = radius / 2.0;
+    draw_circle_lines(x, y, radius, thickness, slam.color());
+
+    let triangle_radius = 0.3 * thickness; // distance from centroid to vertex
+    draw_poly(
+        x + (thickness / 2.0 + radius - 0.25 * triangle_radius) * theta.cos(),
+        y + (thickness / 2.0 + radius - 0.25 * triangle_radius) * theta.sin(),
+        3,
+        0.3 * thickness,
+        theta.to_degrees(),
+        Color::new(0.1, 0.1, 0.1, 0.5)
     );
 }
 
