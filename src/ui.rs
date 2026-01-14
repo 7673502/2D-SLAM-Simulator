@@ -87,8 +87,18 @@ pub fn draw_robot(x: f32, y: f32, theta: f32, radius: f32, fill_color: Color, ou
 
 pub fn draw_slam_state(slam: &dyn Slam, radius: f32) {
     let (x, y, theta) = slam.get_state();
-    draw_circle(x, y, radius, slam.color());
-    draw_line(x, y, x + radius * theta.cos(), y + radius * theta.sin(), 1.0, Color::new(0.0, 0.0, 0.0, 0.5));
+    draw_circle(x, y, radius / 4.0, slam.color());
+    draw_circle_lines(x, y, radius, radius / 2.0, slam.color());
+    draw_arc(
+        x,
+        y,
+        50,
+        radius,
+        theta.to_degrees() - 45.0 / 2.0,
+        radius / 2.0,
+        45.0,
+        Color::new(0.8, 0.8, 0.8, 0.5)
+    );
 }
 
 pub fn draw_slam_landmarks(slam: &dyn Slam, radius: f32) {
