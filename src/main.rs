@@ -141,6 +141,7 @@ async fn main() {
         ui::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, cfg.horizontal_units, cfg.grid_unit);
 
         // shadows
+        ui::draw_landmarks_shadows(&landmarks, cfg.landmark_radius);
         ui::draw_robot_shadow(robot.x, robot.y, cfg.robot_radius);
         ui::draw_obstructions_shadows(&obstructions);
 
