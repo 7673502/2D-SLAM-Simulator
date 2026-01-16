@@ -1,11 +1,14 @@
 use macroquad::prelude::*;
 
-mod config; mod simulation;
-mod slam;
+mod config;
 mod ui;
+mod user_settings;
 mod utils;
+mod simulation;
+mod slam; 
 
 use config::Config;
+use user_settings::UserSettings;
 use simulation::Landmark;
 use slam::{EkfSlam, FastSlam, Slam};
 
@@ -27,6 +30,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let cfg = Config::default();
+    let mut user_settings: UserSettings = Default::default();
     
     // font
     let font = load_ttf_font_from_bytes(FONT_BYTES)
@@ -158,8 +162,11 @@ async fn main() {
 
 
         // draw landmark estimates
-        if cfg.show_landmark_estimates { 
+        if user_settings.show_ekf_state { 
             ui::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius);
+        }
+
+        if user_settings.show_ekf_state { 
             ui::draw_slam_landmarks(&fast_slam, cfg.landmark_radius);
         }
 
@@ -167,11 +174,12 @@ async fn main() {
          * UI
          */
         set_default_camera();
-        draw_text_ex("EKF-SLAM", 50.0, 40.0, TextParams { font: Some(&font), font_size: 20, ..Default::default() });
-        draw_text_ex("FastSLAM", 50.0, 70.0, TextParams { font: Some(&font), font_size: 20, ..Default::default() });
 
-        draw_rectangle(22.5, 22.5, 20.0, 20.0, ekf_slam.color());
-        draw_rectangle(22.5, 52.5, 20.0, 20.0, fast_slam.color());
+        // settings panel
+        ui::draw_settings(50.0);
+
+        // legend
+        ui::draw_legend(&font);
 
         next_frame().await
     }

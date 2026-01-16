@@ -1,10 +1,12 @@
 use macroquad::prelude::*;
 
 use crate::simulation::{Landmark};
-use crate::slam::Slam;
+use crate::slam::{EkfSlam, FastSlam, Slam};
 
 const SHADOW_OFFSET: f32 = 15.0;
 const SHADOW_COLOR: Color = Color::new(0.0, 0.0, 0.0, 1.0);
+const FONT_SIZE: u16 = 20;
+const LINE_SPACING: f32 = 30.0;
 
 pub fn draw_gridlines(
     robot_x: f32,
@@ -114,3 +116,54 @@ pub fn draw_slam_landmarks(slam: &dyn Slam, radius: f32) {
         draw_circle(landmark.1, landmark.2, radius, slam.color());
     }
 }
+
+pub fn draw_legend(font: &Font) {
+    let right_offset = screen_width() - 115.0;
+    let top_offset = screen_height() - 20.0;
+
+
+    let algorithms = [
+        ("FastSLAM", FastSlam::COLOR),
+        ("EKF-SLAM", EkfSlam::COLOR)
+    ];
+
+    for (i, (name, color)) in algorithms.iter().enumerate() {
+        draw_text_ex(
+            name,
+            right_offset,
+            top_offset - (i as f32) * LINE_SPACING,
+            TextParams {
+                font: Some(font),
+                font_size: FONT_SIZE,
+                ..Default::default()
+            }
+        );
+        draw_rectangle(
+            right_offset - 25.0,
+            top_offset - 17.5 - (i as f32) * LINE_SPACING,
+            20.0,
+            20.0,
+            *color
+        );
+    }
+}
+
+pub fn draw_settings(offset: f32) {
+    // rectangle width, height
+    let w = 200.0;
+    let h = 6.0 * LINE_SPACING;
+
+    draw_rectangle_ex(
+        offset + w / 2.0,
+        screen_height() / 2.0,
+        w,
+        h,
+        DrawRectangleParams {
+            offset: vec2(0.5, 0.5),
+            color: Color::new(0.05, 0.05, 0.05, 0.9),
+            ..Default::default()
+        }
+    );
+
+}
+

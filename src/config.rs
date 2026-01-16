@@ -38,9 +38,6 @@ pub struct Config {
     pub est_stdev_angular: f32,
     pub est_stdev_range: f32,
     pub est_stdev_bearing: f32,
-
-    // show slam landmark estimates
-    pub show_landmark_estimates: bool,
 }
 
 impl Config {
@@ -67,7 +64,6 @@ impl Config {
             est_stdev_angular: 0.01,
             est_stdev_range: 5.0,
             est_stdev_bearing: 0.05,
-            show_landmark_estimates: true,
         }
     }
 }

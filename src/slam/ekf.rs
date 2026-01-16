@@ -14,6 +14,8 @@ pub struct EkfSlam {
 }
 
 impl EkfSlam {
+    pub const COLOR: Color = Color::new(0.0, 1.0, 0.0, 0.5);
+
     pub fn new() -> Self {
         Self {
             state: DVector::from_element(3, 0.0), // initial state vector contains robot x, y, angle
@@ -274,6 +276,6 @@ impl Slam for EkfSlam {
     }
 
     fn color(&self) -> Color {
-        Color::new(0.0, 1.0, 0.0, 0.5)
+        Self::COLOR
     }
 }

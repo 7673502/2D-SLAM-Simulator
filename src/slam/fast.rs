@@ -127,6 +127,8 @@ impl Particle {
 }
 
 impl FastSlam {
+    pub const COLOR: Color = Color::new(1.0, 0.0, 0.0, 0.5);
+
     pub fn new(num_particles: usize) -> Self {
         let particles = vec![
             Particle {
@@ -254,6 +256,6 @@ impl Slam for FastSlam {
     }
 
     fn color(&self) -> macroquad::prelude::Color {
-        Color::new(1.0, 0.0, 0.0, 0.5)
+        Self::COLOR
     }
 }
