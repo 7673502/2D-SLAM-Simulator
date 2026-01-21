@@ -155,14 +155,30 @@ pub fn draw_legend(font: &Font) {
     }
 }
 
-pub fn draw_settings(offset: f32) {
-    // rectangle width, height
-    let w = 200.0;
-    let h = 6.0 * LINE_SPACING;
+pub fn draw_settings(font: &Font) {
+    let offset = screen_width() / 4.0;
+    let padding = 30.0;
+
+    // panel width, height, position
+    let w = 400.0;
+    let h = 8.0 * LINE_SPACING;
+    let panel_center_x = offset + w / 2.0;
+    let panel_center_y = screen_height() / 2.0;
+
+    // text
+    let text = [
+        "EKF-SLAM State",
+        "FastSLAM State",
+        "FastSLAM 2.0 State",
+        "EKF-SLAM landmarks",
+        "FastSLAM landmarks",
+        "FastSLAM 2.0 landmarks",
+
+    ];
 
     draw_rectangle_ex(
-        offset + w / 2.0,
-        screen_height() / 2.0,
+        panel_center_x,
+        panel_center_y,
         w,
         h,
         DrawRectangleParams {
@@ -172,5 +188,62 @@ pub fn draw_settings(offset: f32) {
         }
     );
 
+    draw_text_ex(
+        "Visibility Menu",
+        offset + padding + 90.0,
+        panel_center_y - 2.625 * LINE_SPACING - 7.5,
+        TextParams {
+            font: Some(font),
+            font_size: FONT_SIZE,
+            ..Default::default()
+        }
+    );
+
+    for (i, s) in text.iter().enumerate() {
+        draw_rectangle_lines_ex(
+            offset + padding,
+            panel_center_y - (2.0 - i as f32) * LINE_SPACING,
+            20.0,
+            20.0,
+            2.0,
+            DrawRectangleParams { 
+                offset: vec2(0.5, 0.5),
+                color: LIGHTGRAY,
+                ..Default::default()
+            }
+        );
+        draw_text_ex(
+            s,
+            offset + padding + 20.0,
+            panel_center_y - (1.5 - i as f32) * LINE_SPACING - 7.5,
+            TextParams {
+                font: Some(font),
+                font_size: FONT_SIZE,
+                color: LIGHTGRAY,
+                ..Default::default()
+            }
+        );
+    }
 }
 
+pub fn draw_settings_cog(x: f32, y: f32, r: f32) {
+    let color = WHITE;
+    let thickness = 5.0;
+
+    draw_circle_lines(x, y, r, thickness, color);
+
+    for i in 0..8 {
+        let angle = std::f32::consts::FRAC_PI_4 * (i as f32);
+        draw_rectangle_ex(
+            x + (thickness + r) * angle.cos(),
+            y + (thickness + r) * angle.sin(),
+            thickness,
+            thickness,
+            DrawRectangleParams { 
+                offset: vec2(0.5, 0.5),
+                rotation: angle,
+                color
+            }
+        )
+    }
+}

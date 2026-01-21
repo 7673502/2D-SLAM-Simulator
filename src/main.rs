@@ -30,6 +30,9 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let cfg = Config::default();
+
+    // settings
+    let pause = true;
     let mut user_settings: UserSettings = Default::default();
     
     // font
@@ -176,10 +179,13 @@ async fn main() {
         set_default_camera();
 
         // settings panel
-        ui::draw_settings(50.0, &font);
+        ui::draw_settings(&font);
 
         // legend
         ui::draw_legend(&font);
+
+        // settings cog
+        ui::draw_settings_cog(20.0, 20.0, 5.0);
 
         next_frame().await
     }
