@@ -2,6 +2,11 @@ use macroquad::prelude::*;
 use crate::slam::{EkfSlam, FastSlam};
 use super::{FONT_SIZE, LINE_SPACING};
 
+const COG_X: f32 = 20.0;
+const COG_Y: f32 = 20.0;
+const COG_R: f32 = 5.0;
+const COG_THICKNESS: f32 = 5.0;
+
 pub fn draw_legend(font: &Font) {
     let right_offset = screen_width() - 115.0;
     let top_offset = screen_height() - 20.0;
@@ -104,19 +109,19 @@ pub fn draw_settings(font: &Font) {
     }
 }
 
-pub fn draw_settings_cog(x: f32, y: f32, r: f32) {
-    let color = LIGHTGRAY;
-    let thickness = 5.0;
-
-    draw_circle_lines(x, y, r, thickness, color);
+pub fn draw_cog() {
+    let effective_radius = COG_R + COG_THICKNESS;
+    let color = if is_cog_hovered() { GRAY } else { LIGHTGRAY };
+    
+    draw_circle_lines(COG_X, COG_Y, COG_R, COG_THICKNESS, color);
 
     for i in 0..8 {
         let angle = std::f32::consts::FRAC_PI_4 * (i as f32);
         draw_rectangle_ex(
-            x + (thickness + r) * angle.cos(),
-            y + (thickness + r) * angle.sin(),
-            thickness,
-            thickness,
+            COG_X + effective_radius * angle.cos(),
+            COG_Y + effective_radius * angle.sin(),
+            COG_THICKNESS,
+            COG_THICKNESS,
             DrawRectangleParams { 
                 offset: vec2(0.5, 0.5),
                 rotation: angle,
@@ -125,3 +130,14 @@ pub fn draw_settings_cog(x: f32, y: f32, r: f32) {
         )
     }
 }
+
+pub fn is_cog_hovered() -> bool {
+    let (mouse_x, mouse_y) = mouse_position();
+    let effective_radius = COG_R + COG_THICKNESS;
+
+    mouse_x > COG_X - effective_radius &&
+    mouse_y > COG_Y - effective_radius &&
+    mouse_x < COG_X + effective_radius && 
+    mouse_y < COG_Y + effective_radius
+}
+

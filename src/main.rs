@@ -12,7 +12,7 @@ use user_settings::UserSettings;
 use simulation::Landmark;
 use slam::{EkfSlam, FastSlam, Slam};
 
-use crate::app::input;
+use crate::app::{hud::is_cog_hovered, input};
 
 // loads font
 const FONT_BYTES: &[u8] = include_bytes!("../assets/fonts/GoogleSansCode-Medium.ttf");
@@ -34,7 +34,7 @@ async fn main() {
     let cfg = Config::default();
 
     // settings
-    let pause = true;
+    let mut pause = false;
     let mut user_settings: UserSettings = Default::default();
     
     // font
@@ -67,24 +67,30 @@ async fn main() {
         /*
          * user input
          */
-        input::movement_input(&mut robot, &cfg, delta_time);
-        input::obstructions_input(&gt_camera, &mut obstructions, &cfg);
-        input::landmarks_input(&gt_camera, &mut landmarks, &cfg);
+        if is_cog_hovered() && is_mouse_button_released(MouseButton::Left) {
+            pause = !pause;
+        } else {
+            input::movement_input(&mut robot, &cfg, delta_time);
+            input::obstructions_input(&gt_camera, &mut obstructions, &cfg);
+            input::landmarks_input(&gt_camera, &mut landmarks, &cfg);
+        }
         
         /*
          * update logic
          */
-        // ground truth robot update
-        robot.update(delta_time, &cfg, &obstructions);
+        if !pause {
+            // ground truth robot update
+            robot.update(delta_time, &cfg, &obstructions);
 
-        // ekf prediction step
-        ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
-        fast_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
-        
-        // ekf correction step
-        let observations = robot.sense(&landmarks,&obstructions, &cfg);
-        ekf_slam.update(&observations, &cfg);
-        fast_slam.update(&observations, &cfg);
+            // ekf prediction step
+            ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
+            fast_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
+            
+            // ekf correction step
+            let observations = robot.sense(&landmarks,&obstructions, &cfg);
+            ekf_slam.update(&observations, &cfg);
+            fast_slam.update(&observations, &cfg);
+        }
         
         /*
          * simulation rendering
@@ -117,7 +123,7 @@ async fn main() {
             renderer::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius);
         }
 
-        if user_settings.show_ekf_state { 
+        if user_settings.show_fast_state { 
             renderer::draw_slam_landmarks(&fast_slam, cfg.landmark_radius);
         }
 
@@ -126,9 +132,10 @@ async fn main() {
          */
         set_default_camera();
 
-        hud::draw_settings(&font);
+        if pause { hud::draw_settings(&font); }
         hud::draw_legend(&font);
-        hud::draw_settings_cog(20.0, 20.0, 5.0);
+        
+        hud::draw_cog();
 
         next_frame().await
     }
