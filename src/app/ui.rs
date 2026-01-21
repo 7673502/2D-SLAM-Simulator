@@ -227,7 +227,7 @@ pub fn draw_settings(font: &Font) {
 }
 
 pub fn draw_settings_cog(x: f32, y: f32, r: f32) {
-    let color = WHITE;
+    let color = LIGHTGRAY;
     let thickness = 5.0;
 
     draw_circle_lines(x, y, r, thickness, color);
