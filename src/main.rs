@@ -1,12 +1,12 @@
 use macroquad::prelude::*;
 
+mod app;
 mod config;
-mod ui;
-mod user_settings;
 mod utils;
 mod simulation;
 mod slam; 
 
+use app::{ui, user_settings};
 use config::Config;
 use user_settings::UserSettings;
 use simulation::Landmark;
