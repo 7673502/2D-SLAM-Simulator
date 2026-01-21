@@ -69,7 +69,7 @@ async fn main() {
          */
         if is_cog_hovered() && is_mouse_button_released(MouseButton::Left) {
             pause = !pause;
-        } else {
+        } else if !pause {
             input::movement_input(&mut robot, &cfg, delta_time);
             input::obstructions_input(&gt_camera, &mut obstructions, &cfg);
             input::landmarks_input(&gt_camera, &mut landmarks, &cfg);
