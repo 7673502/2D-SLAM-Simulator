@@ -114,18 +114,12 @@ async fn main() {
         renderer::draw_robot(robot.x, robot.y, robot.theta, cfg.robot_radius, BLUE, WHITE);
 
         // SLAM "ghosts"
-        renderer::draw_slam_state(&ekf_slam, cfg.robot_radius * 1.5);
-        renderer::draw_slam_state(&fast_slam, cfg.robot_radius * 1.5);
-
+        if user_settings.show_ekf_state { renderer::draw_slam_state(&ekf_slam, cfg.robot_radius * 1.5) };
+        if user_settings.show_fast_state { renderer::draw_slam_state(&fast_slam, cfg.robot_radius * 1.5) };
 
         // draw landmark estimates
-        if user_settings.show_ekf_state { 
-            renderer::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius);
-        }
-
-        if user_settings.show_fast_state { 
-            renderer::draw_slam_landmarks(&fast_slam, cfg.landmark_radius);
-        }
+        if user_settings.show_ekf_landmarks { renderer::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius); }
+        if user_settings.show_fast_landmarks { renderer::draw_slam_landmarks(&fast_slam, cfg.landmark_radius); }
 
         /*
          * HUD
