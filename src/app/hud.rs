@@ -74,7 +74,7 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
 
     draw_text_ex(
         "Visibility Menu",
-        offset + padding + 90.0,
+        offset + padding + 80.0,
         panel_center_y - 2.625 * LINE_SPACING - 7.5,
         TextParams {
             font: Some(font),
