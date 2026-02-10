@@ -14,7 +14,7 @@ pub struct EkfSlam {
 }
 
 impl EkfSlam {
-    pub const COLOR: Color = Color::new(0.0, 1.0, 0.0, 0.5);
+    pub const COLOR: Color = Color::new(0.0, 0.7, 1.0, 0.5);
 
     pub fn new() -> Self {
         Self {
