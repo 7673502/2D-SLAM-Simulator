@@ -25,7 +25,7 @@ To do:
 - left click: place obstruction
 - right click: place landmark
 
-Hit the setting button in the top left to choose which algorithms' position and landmark estimates are visible.
+Hit the setting button in the top left to choose which algorithms' pose and landmark estimates are visible.
 
 ## Project Structure
 
