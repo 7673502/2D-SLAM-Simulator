@@ -49,6 +49,8 @@ async fn main() {
     let mut ekf_slam = EkfSlam::new();
     let mut fast_slam = FastSlam::new(100);
 
+    let mut horizontal_units = cfg.min_horizontal_units;
+
     loop {
         /*
          * setup
@@ -58,7 +60,7 @@ async fn main() {
         
         let gt_camera = Camera2D {
             target: vec2(robot.x, robot.y),
-            zoom: vec2(2.0 / cfg.horizontal_units, 2.0 / -cfg.horizontal_units * viewport_width / viewport_height),
+            zoom: vec2(2.0 / horizontal_units, 2.0 / -horizontal_units * viewport_width / viewport_height),
             ..Default::default()
         };
         
@@ -74,6 +76,7 @@ async fn main() {
             input::obstructions_input(&gt_camera, &mut obstructions, &cfg);
             input::landmarks_input(&gt_camera, &mut landmarks, &cfg);
         }
+        input::zoom_input(&mut horizontal_units, cfg.min_horizontal_units, cfg.max_horizontal_units);
         
         /*
          * update logic
@@ -99,7 +102,7 @@ async fn main() {
         set_camera(&gt_camera);
         
         // gridlines
-        renderer::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, cfg.horizontal_units, cfg.grid_unit);
+        renderer::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, horizontal_units, cfg.grid_unit);
 
         // shadows
         renderer::draw_landmarks_shadows(&landmarks, cfg.landmark_radius);

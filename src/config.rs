@@ -28,7 +28,8 @@ pub struct Config {
     pub obstruction_height: f32,
 
     // camera
-    pub horizontal_units: f32, // number of units horizontally for camera viewport
+    pub min_horizontal_units: f32, // number of units horizontally for camera viewport
+    pub max_horizontal_units: f32,
 
     // grid
     pub grid_unit: f32,
@@ -58,7 +59,8 @@ impl Config {
             landmark_radius: 6.0,
             obstruction_width: 50.0,
             obstruction_height: 50.0,
-            horizontal_units: 500.0,
+            min_horizontal_units: 500.0,
+            max_horizontal_units: 2500.0,
             grid_unit: 50.0,
             est_stdev_linear: 0.03,
             est_stdev_angular: 0.01,

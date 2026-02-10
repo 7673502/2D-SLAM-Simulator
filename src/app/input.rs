@@ -26,7 +26,7 @@ pub fn obstructions_input(
     let mouse_screen = mouse_position();
     let mouse_world = camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
 
-    if is_mouse_button_released(MouseButton::Left) {
+    if is_key_released(KeyCode::O) {
         // delete the obstruction if mouse is touching it
         let mut removed = false;
         for i in 0..obstructions.len() {
@@ -56,7 +56,7 @@ pub fn landmarks_input(
     let mouse_screen = mouse_position();
     let mouse_world = gt_camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
 
-    if is_mouse_button_released(MouseButton::Right) {
+    if is_key_released(KeyCode::L) {
         let mut removed = false;
         for (i, landmark) in landmarks.iter().enumerate() {
             if mouse_world.x < landmark.x + cfg.landmark_radius &&
@@ -80,3 +80,12 @@ pub fn landmarks_input(
         }
     }
 }
+
+pub fn zoom_input(
+    horizontal_units: &mut f32,
+    min_horizontal_units: f32,
+    max_horizontal_units: f32
+) {
+    *horizontal_units = (*horizontal_units - mouse_wheel().1).clamp(min_horizontal_units, max_horizontal_units)
+}
+
