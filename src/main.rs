@@ -69,7 +69,7 @@ async fn main() {
         /*
          * user input
          */
-        if is_cog_hovered() && is_mouse_button_released(MouseButton::Left) {
+        if (is_cog_hovered() && is_mouse_button_released(MouseButton::Left)) || is_key_released(KeyCode::Escape) {
             pause = !pause;
         } else if !pause {
             input::movement_input(&mut robot, &cfg, delta_time);
