@@ -1,6 +1,6 @@
 # 2D SLAM Simulator
 
-![example GIF of simulator in action](./slam_sim_example.gif)
+<img src="./slam_sim_example.gif" width="50%" />
 
 This is a Rust implementation of a simulator for [EKF-SLAM](https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf) and [FastSLAM](https://ai.stanford.edu/~koller/Papers/Montemerlo+al:AAAI02.pdf) with planned support for GraphSLAM.
 
