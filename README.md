@@ -23,8 +23,8 @@ Hit the setting button in the top left to choose which algorithms' pose and land
 TODO
 
 ## Sources
-[1] [Simultaneous localization and mapping with the extended Kalman filter](https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf)
-[2] [FastSLAM: A Factored Solution to the Simultaneous Localization and Mapping Problem](https://ai.stanford.edu/~koller/Papers/Montemerlo+al:AAAI02.pdf)
+1. [Simultaneous localization and mapping with the extended Kalman filter](https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf)
+2. [FastSLAM: A Factored Solution to the Simultaneous Localization and Mapping Problem](https://ai.stanford.edu/~koller/Papers/Montemerlo+al:AAAI02.pdf)
 
 ## License
 
