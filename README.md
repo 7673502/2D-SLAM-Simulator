@@ -11,7 +11,7 @@ This is a Rust implementation of a simulator for [EKF-SLAM](https://www.iri.upc.
 
 ## Controls
 
-- <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&larr;</kbd> <kbd>&larr;</kbd> movement
+- <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&larr;</kbd> <kbd>&rarr;</kbd> movement
 - <kbd>o</kbd> place obstruction
 - <kbd>l</kbd> place landmark
 - <kbd>esc</kbd> enter/exit visibility settings
@@ -19,8 +19,26 @@ This is a Rust implementation of a simulator for [EKF-SLAM](https://www.iri.upc.
 Hit the setting button in the top left to choose which algorithms' pose and landmark estimates are visible.
 
 ## Project Structure
-
-TODO
+```
+.
+├── assets/                  # static resources (fonts, images)
+└── src/
+    ├── app/                 # application layer (view & controller)
+    │   ├── hud.rs           # UI overlays, settings menu, and legends
+    │   ├── input.rs         # input handling (mouse clicks, zoom, WASD)
+    │   ├── mod.rs           # module exports
+    │   ├── renderer.rs      # pure rendering functions (draws the state)
+    │   └── user_settings.rs # structs for toggling visualization states
+    ├── slam/                # SLAM algorithms
+    │   ├── ekf.rs           # EKF implementation
+    │   ├── fast.rs          # FastSLAM implementation
+    │   ├── mod.rs           # module exports
+    │   └── trait_def.rs     # shared trait ensuring algorithms have a common API
+    ├── config.rs            # central configuration (noise levels, physics constants)
+    ├── main.rs              # entry point (game loop & state management)
+    ├── simulation.rs        # the model (physics, ground truth robot, collision)
+    └── utils.rs             # math helpers (normal distribution, coordinate transforms)
+```
 
 ## Sources
 1. [Simultaneous localization and mapping with the extended Kalman filter](https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf)
