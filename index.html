@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SLAM Simulator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #eeeeee;
+            font-family: "Google Sans Code", monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { margin-bottom: 10px; font-weight: 700; }
+        
+        #game-container {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #444;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+            background: #000;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+        }
+
+        .description {
+            max-width: 800px;
+            margin-top: 20px;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #ccc;
+            font-weight: 400;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        a {
+		    color: #007bff;
+		    font-weight: 600;
+		    text-decoration: none;
+        }
+
+		a:hover {
+		    color: #66b2ff;
+		}
+    </style>
+</head>
+
+<body>
+    <h1>2D SLAM Simulator</h1>
+
+    <div id="game-container">
+        <canvas id="glcanvas" tabindex='1'></canvas>
+    </div>
+
+    <div class="description">
+        <p>
+            This is a real-time simulation of <strong>Simultaneous Localization and Mapping (SLAM)</strong> written in Rust.
+			It compares two famous algorithms (<a href="https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf">EKF-SLAM</a>
+			and <a href="https://ai.stanford.edu/~koller/Papers/Montemerlo+al:AAAI02.pdf">FastSLAM</a>) against a robot in a simulated 2D environment.
+        </p>
+        
+        <div class="controls">
+            <span><strong>WASD:</strong> Move Robot</span>
+            <span><strong>Click:</strong> Add Wall</span>
+            <span><strong>Shift + Click:</strong> Add Landmark</span>
+            <span><strong>Scroll:</strong> Zoom</span>
+        </div>
+    </div>
+
+    <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
+    <script>
+        load("SLAM-Simulator.wasm"); 
+    </script>
+</body>
+</html>
