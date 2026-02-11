@@ -3,10 +3,10 @@ use crate::app::user_settings::UserSettings;
 use crate::slam::{EkfSlam, FastSlam};
 use super::{FONT_SIZE, LINE_SPACING};
 
-const COG_X: f32 = 20.0;
-const COG_Y: f32 = 20.0;
-const COG_R: f32 = 5.0;
-const COG_THICKNESS: f32 = 5.0;
+const COG_X: f32 = 30.0;
+const COG_Y: f32 = 30.0;
+const COG_R: f32 = 8.0;
+const COG_THICKNESS: f32 = 8.0;
 
 pub fn draw_legend(font: &Font) {
     let right_offset = screen_width() - 115.0;
