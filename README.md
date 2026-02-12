@@ -2,13 +2,15 @@
 
 ## [Try out the simulator online in browser!](https://slam.pramodna.com/)
 
-<img src="./slam_sim_example.gif" width="50%" />
+<div align="center">
+ <img src="./slam_sim_example.gif" width="75%" />
+</div>
 
 This is a Rust implementation of a simulator for [EKF-SLAM](https://www.iri.upc.edu/people/jsola/JoanSola/objectes/curs_SLAM/SLAM2D/SLAM%20course.pdf) and [FastSLAM](https://ai.stanford.edu/~koller/Papers/Montemerlo+al:AAAI02.pdf) with planned support for GraphSLAM.
 
 ## What is SLAM?
 
-[SLAM](https://www.mathworks.com/discovery/slam.html) stands for "simulataneous localization and mapping." This is a problem in which an agent (in our case, a robot) must map its surroundings and determine its position in that map at the same time. This project visualizes a simulated robot along with the estimated poses given by two famous SLAM algorithms: EKF-SLAM and FastSLAM.
+[SLAM](https://www.mathworks.com/discovery/slam.html) stands for "simultaneous localization and mapping." This is a problem in which an agent (in our case, a robot) must map its surroundings and determine its position in that map at the same time. This project visualizes a simulated robot along with the estimated poses given by two famous SLAM algorithms: EKF-SLAM and FastSLAM.
 
 
 ## Controls
