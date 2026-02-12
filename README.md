@@ -11,10 +11,10 @@ This is a Rust implementation of a simulator for [EKF-SLAM](https://www.iri.upc.
 
 ## Controls
 
-- <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&larr;</kbd> <kbd>&rarr;</kbd> movement
-- <kbd>o</kbd> place obstruction
-- <kbd>l</kbd> place landmark
-- <kbd>esc</kbd> enter/exit visibility settings
+- <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&larr;</kbd> <kbd>&rarr;</kbd>/<kbd>WASD</kbd> - movement
+- click - place obstruction
+- <kbd>shift</kbd> + click - place landmark
+- <kbd>esc</kbd> - enter/exit visibility settings
 
 Hit the setting button in the top left to choose which algorithms' pose and landmark estimates are visible.
 

@@ -4,16 +4,16 @@ use crate::simulation::{Landmark, Robot};
 
 pub fn movement_input(robot: &mut Robot, cfg: &Config, delta_time: f32) {
     // movement
-    if is_key_down(KeyCode::Up) {
+    if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
         robot.linear_velocity += cfg.linear_acc * delta_time;
     }
-    if is_key_down(KeyCode::Down) {
+    if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         robot.linear_velocity -= cfg.linear_acc * delta_time;
     }
-    if is_key_down(KeyCode::Right) {
+    if is_key_down(KeyCode::Right) || is_key_down(KeyCode::A) {
         robot.angular_velocity -= cfg.angular_acc * delta_time;
     }
-    if is_key_down(KeyCode::Left) {
+    if is_key_down(KeyCode::Left) || is_key_down(KeyCode::D) {
         robot.angular_velocity += cfg.angular_acc * delta_time;
     }
 }
@@ -26,7 +26,7 @@ pub fn obstructions_input(
     let mouse_screen = mouse_position();
     let mouse_world = camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
 
-    if is_key_released(KeyCode::O) {
+    if !(is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift)) && is_mouse_button_released(MouseButton::Left) {
         // delete the obstruction if mouse is touching it
         let mut removed = false;
         for i in 0..obstructions.len() {
@@ -56,7 +56,7 @@ pub fn landmarks_input(
     let mouse_screen = mouse_position();
     let mouse_world = gt_camera.screen_to_world(vec2(mouse_screen.0, mouse_screen.1));
 
-    if is_key_released(KeyCode::L) {
+    if (is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift)) && is_mouse_button_released(MouseButton::Left) {
         let mut removed = false;
         for (i, landmark) in landmarks.iter().enumerate() {
             if mouse_world.x < landmark.x + cfg.landmark_radius &&
