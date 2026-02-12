@@ -2,7 +2,7 @@ name: Deploy SLAM Simulator
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
