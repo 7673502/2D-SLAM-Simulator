@@ -10,10 +10,10 @@ pub fn movement_input(robot: &mut Robot, cfg: &Config, delta_time: f32) {
     if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
         robot.linear_velocity -= cfg.linear_acc * delta_time;
     }
-    if is_key_down(KeyCode::Right) || is_key_down(KeyCode::A) {
+    if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
         robot.angular_velocity -= cfg.angular_acc * delta_time;
     }
-    if is_key_down(KeyCode::Left) || is_key_down(KeyCode::D) {
+    if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
         robot.angular_velocity += cfg.angular_acc * delta_time;
     }
 }
