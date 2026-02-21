@@ -173,6 +173,7 @@ impl FastSlam {
             new_particles.push(particle);
             position += step;
         }
+        self.particles = new_particles;
     }
 }
 
