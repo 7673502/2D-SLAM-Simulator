@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use nalgebra::{Matrix2, Vector2};
 use macroquad::prelude::Color;
+use nalgebra::{Matrix2, Vector2};
+use std::collections::HashMap;
 
-use crate::slam::Slam;
-use crate::simulation::Observation;
 use crate::config::Config;
+use crate::simulation::Observation;
+use crate::slam::Slam;
 use crate::utils::{absolute_to_relative, relative_to_absolute, sample_normal};
 
 #[derive(Clone)]
@@ -35,19 +35,23 @@ impl Particle {
             self.y,
             self.theta,
             observation.range,
-            observation.bearing
+            observation.bearing,
         );
 
         // jacobian of landmark position with respect to observation
         let g_y = Matrix2::new(
-            absolute_angle.cos(), -observation.range * absolute_angle.sin(),
-            absolute_angle.sin(), observation.range * absolute_angle.cos()
+            absolute_angle.cos(),
+            -observation.range * absolute_angle.sin(),
+            absolute_angle.sin(),
+            observation.range * absolute_angle.cos(),
         );
 
         // sensor noise
         let r = Matrix2::new(
-            cfg.est_stdev_range.powi(2), 0.0,
-            0.0, cfg.est_stdev_bearing.powi(2)
+            cfg.est_stdev_range.powi(2),
+            0.0,
+            0.0,
+            cfg.est_stdev_bearing.powi(2),
         );
 
         // landmark covariance
@@ -56,7 +60,7 @@ impl Particle {
         // create and insert the landmark
         let new_landmark = LandmarkEstimate {
             mu: Vector2::new(landmark_x, landmark_y),
-            sigma: p_ll
+            sigma: p_ll,
         };
 
         self.landmarks.insert(observation.id, new_landmark);
@@ -70,18 +74,13 @@ impl Particle {
             let distance_sq = (distance_x * distance_x) + (distance_y * distance_y);
             let distance = distance_sq.sqrt();
 
-            let (predicted_range, predicted_bearing) = absolute_to_relative(
-                self.x,
-                self.y,
-                self.theta,
-                landmark.mu.x,
-                landmark.mu.y
-            );
+            let (predicted_range, predicted_bearing) =
+                absolute_to_relative(self.x, self.y, self.theta, landmark.mu.x, landmark.mu.y);
 
             let range_difference = observation.range - predicted_range;
             let bearing_difference = f32::atan2(
                 (observation.bearing - predicted_bearing).sin(),
-                (observation.bearing - predicted_bearing).cos()
+                (observation.bearing - predicted_bearing).cos(),
             );
 
             // innovation vector
@@ -89,14 +88,18 @@ impl Particle {
 
             // jacobian with respect to landmark
             let h_l = Matrix2::new(
-                distance_x / distance, distance_y / distance,
-                -distance_y / distance_sq, distance_x / distance_sq
+                distance_x / distance,
+                distance_y / distance,
+                -distance_y / distance_sq,
+                distance_x / distance_sq,
             );
 
             // sensor noise
             let r = Matrix2::new(
-                cfg.est_stdev_range.powi(2), 0.0,
-                0.0, cfg.est_stdev_bearing.powi(2)
+                cfg.est_stdev_range.powi(2),
+                0.0,
+                0.0,
+                cfg.est_stdev_bearing.powi(2),
             );
 
             // landmark-landmark covariance
@@ -110,7 +113,8 @@ impl Particle {
             // weight update
             let determinant = z_matrix.determinant().max(1e-6);
             let exponent = -0.5 * (z.transpose() * z_inverse * z)[(0, 0)];
-            let weight_update = (1.0 / (2.0 * std::f32::consts::PI * determinant.sqrt())) * exponent.exp();
+            let weight_update =
+                (1.0 / (2.0 * std::f32::consts::PI * determinant.sqrt())) * exponent.exp();
             self.weight *= weight_update.max(1e-20);
 
             // ekf update
@@ -152,7 +156,9 @@ impl FastSlam {
 
         // safety check for if weights collapsed
         if total_weight < 1e-10 {
-            for particle in &mut self.particles { particle.weight = 1.0; }
+            for particle in &mut self.particles {
+                particle.weight = 1.0;
+            }
             return;
         }
 
@@ -178,13 +184,27 @@ impl FastSlam {
 }
 
 impl Slam for FastSlam {
-    fn predict(&mut self, linear_velocity: f32, angular_velocity: f32, delta_time: f32, cfg: &Config) {
+    fn predict(
+        &mut self,
+        linear_velocity: f32,
+        angular_velocity: f32,
+        delta_time: f32,
+        cfg: &Config,
+    ) {
         for particle in &mut self.particles {
-            let noisy_linear_velocity = linear_velocity + sample_normal(0.0, (cfg.est_stdev_linear * linear_velocity.abs()).max(0.01));
-            let noisy_angular_velocity  = angular_velocity + sample_normal(0.0, (cfg.est_stdev_angular * angular_velocity.abs()).max(0.01));
+            let noisy_linear_velocity = linear_velocity
+                + sample_normal(
+                    0.0,
+                    (cfg.est_stdev_linear * linear_velocity.abs()).max(0.01),
+                );
+            let noisy_angular_velocity = angular_velocity
+                + sample_normal(
+                    0.0,
+                    (cfg.est_stdev_angular * angular_velocity.abs()).max(0.01),
+                );
 
             let theta_half = particle.theta + 0.5 * noisy_angular_velocity * delta_time;
-        
+
             // update position estimate
             particle.x += noisy_linear_velocity * delta_time * theta_half.cos();
             particle.y += noisy_linear_velocity * delta_time * theta_half.sin();
@@ -218,14 +238,16 @@ impl Slam for FastSlam {
         for particle in &self.particles {
             x += particle.x * particle.weight;
             y += particle.y * particle.weight;
-            
+
             dir_x += particle.theta.cos() * particle.weight;
             dir_y += particle.theta.sin() * particle.weight;
-            
+
             total_weight += particle.weight;
         }
 
-        if total_weight < 1e-10 { return (0.0, 0.0, 0.0); }
+        if total_weight < 1e-10 {
+            return (0.0, 0.0, 0.0);
+        }
 
         (x / total_weight, y / total_weight, f32::atan2(dir_y, dir_x))
     }
@@ -239,18 +261,21 @@ impl Slam for FastSlam {
             total_weight += particle.weight;
 
             for (id, landmark) in &particle.landmarks {
-                hashmap.entry(*id)
+                hashmap
+                    .entry(*id)
                     .and_modify(|(x, y)| {
                         *x += landmark.mu.x * particle.weight;
                         *y += landmark.mu.y * particle.weight;
                     })
-                    .or_insert((landmark.mu.x * particle.weight, landmark.mu.y * particle.weight));
+                    .or_insert((
+                        landmark.mu.x * particle.weight,
+                        landmark.mu.y * particle.weight,
+                    ));
             }
         }
 
         for (id, landmark) in &mut hashmap {
             landmarks.push((*id, landmark.0 / total_weight, landmark.1 / total_weight))
-
         }
 
         landmarks

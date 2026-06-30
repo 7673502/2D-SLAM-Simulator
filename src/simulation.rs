@@ -1,6 +1,6 @@
-use macroquad::prelude::*;
 use crate::config::Config;
 use crate::utils::sample_normal;
+use macroquad::prelude::*;
 
 pub struct Robot {
     pub x: f32,
@@ -39,89 +39,102 @@ impl Robot {
 
     pub fn update(&mut self, delta_time: f32, cfg: &Config, obstructions: &[Rect]) {
         // bound velocity
-        self.linear_velocity = self.linear_velocity.clamp(-cfg.max_linear_speed, cfg.max_linear_speed);
-        self.angular_velocity = self.angular_velocity.clamp(-cfg.max_angular_speed, cfg.max_angular_speed);
+        self.linear_velocity = self
+            .linear_velocity
+            .clamp(-cfg.max_linear_speed, cfg.max_linear_speed);
+        self.angular_velocity = self
+            .angular_velocity
+            .clamp(-cfg.max_angular_speed, cfg.max_angular_speed);
 
         // apply decay
         self.linear_velocity *= (-cfg.drag_linear * delta_time).exp();
         self.angular_velocity *= (-cfg.drag_angular * delta_time).exp();
-        
+
         // add noise to velocity; uses separate variable to keep struct's velocities clean
-        let noisy_linear_velocity = self.linear_velocity + sample_normal(0.0, cfg.real_stdev_linear  * self.linear_velocity.abs());
-        let noisy_angular_velocity = self.angular_velocity + sample_normal(0.0, cfg.real_stdev_angular * self.angular_velocity.abs());
+        let noisy_linear_velocity = self.linear_velocity
+            + sample_normal(0.0, cfg.real_stdev_linear * self.linear_velocity.abs());
+        let noisy_angular_velocity = self.angular_velocity
+            + sample_normal(0.0, cfg.real_stdev_angular * self.angular_velocity.abs());
 
         // update direction
         self.theta += 0.5 * (noisy_angular_velocity + self.prev_angular_velocity) * delta_time;
         self.theta = f32::atan2(self.theta.sin(), self.theta.cos()); // normalize to (-PI, PI]
-        
+
         // update position
-        self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.theta.cos();
-        self.y += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time) * self.theta.sin();
+        self.x += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time)
+            * self.theta.cos();
+        self.y += (0.5 * (noisy_linear_velocity + self.prev_linear_velocity) * delta_time)
+            * self.theta.sin();
 
         // detect obstruction
         for obstruction in obstructions.iter() {
             let closest_x = self.x.clamp(obstruction.x, obstruction.x + obstruction.w);
             let closest_y = self.y.clamp(obstruction.y, obstruction.y + obstruction.h);
-            
+
             // distance from closest point on obstruction to center of robot
             let distance_x = self.x - closest_x;
             let distance_y = self.y - closest_y;
             let distance_sq = distance_x * distance_x + distance_y * distance_y;
-            
+
             if distance_sq < cfg.robot_radius * cfg.robot_radius {
                 let distance = distance_sq.sqrt();
-                
+
                 if distance > 0.0 {
                     self.x = closest_x + cfg.robot_radius * (distance_x / distance);
                     self.y = closest_y + cfg.robot_radius * (distance_y / distance);
                 }
             }
-        } 
+        }
 
         // needed for calculating x, y, and dir on next frame
         self.prev_linear_velocity = noisy_linear_velocity;
         self.prev_angular_velocity = noisy_angular_velocity;
     }
-    
-    pub fn sense(&mut self, landmarks: &[Landmark], obstructions: &[Rect], cfg: &Config) -> Vec<Observation> {
+
+    pub fn sense(
+        &mut self,
+        landmarks: &[Landmark],
+        obstructions: &[Rect],
+        cfg: &Config,
+    ) -> Vec<Observation> {
         let mut observations = Vec::new();
-        
+
         for landmark in landmarks.iter() {
             let distance_x = landmark.x - self.x;
             let distance_y = landmark.y - self.y;
-            
+
             let gt_range = (distance_x * distance_x + distance_y * distance_y).sqrt();
-            
+
             if gt_range < cfg.sensor_range {
                 let mut blocked = false; // flag for if current landmark is out of line of sight
 
                 for obstruction in obstructions.iter() {
-                    if self.liang_barsky(landmark, obstruction) { 
+                    if self.liang_barsky(landmark, obstruction) {
                         blocked = true;
                         break;
                     }
                 }
 
-                if blocked { continue; }
+                if blocked {
+                    continue;
+                }
 
                 // absolute angle of landmark from robot
                 let absolute_angle = f32::atan2(distance_y, distance_x);
                 let relative_angle = absolute_angle - self.theta;
-                
+
                 // normalize ground truth bearing to (-PI, PI]
                 let gt_bearing = f32::atan2(relative_angle.sin(), relative_angle.cos());
-                
+
                 let noisy_range = (gt_range + sample_normal(0.0, cfg.real_stdev_range)).max(0.0);
                 let mut noisy_bearing = gt_bearing + sample_normal(0.0, cfg.real_stdev_bearing);
                 noisy_bearing = f32::atan2(noisy_bearing.sin(), noisy_bearing.cos()); // normalization
-                
-                observations.push(
-                    Observation {
-                        id: landmark.id,
-                        range: noisy_range,
-                        bearing: noisy_bearing
-                    }
-                )
+
+                observations.push(Observation {
+                    id: landmark.id,
+                    range: noisy_range,
+                    bearing: noisy_bearing,
+                })
             }
         }
 
@@ -161,11 +174,19 @@ impl Robot {
                 let t = q_current / p_current;
 
                 if p_current < 0.0 {
-                    if t > u2 { return false; }
-                    if t > u1 { u1 = t; }
+                    if t > u2 {
+                        return false;
+                    }
+                    if t > u1 {
+                        u1 = t;
+                    }
                 } else {
-                    if t < u1 { return false; }
-                    if t < u2 { u2 = t; }
+                    if t < u1 {
+                        return false;
+                    }
+                    if t < u2 {
+                        u2 = t;
+                    }
                 }
             }
         }

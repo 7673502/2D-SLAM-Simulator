@@ -2,15 +2,15 @@ use macroquad::prelude::*;
 
 mod app;
 mod config;
-mod utils;
 mod simulation;
-mod slam; 
+mod slam;
+mod utils;
 
 use app::{hud, renderer, user_settings};
 use config::Config;
-use user_settings::UserSettings;
 use simulation::Landmark;
 use slam::{EkfSlam, FastSlam, Slam};
+use user_settings::UserSettings;
 
 use crate::app::{hud::is_cog_hovered, input};
 
@@ -36,10 +36,9 @@ async fn main() {
     // settings
     let mut pause = false;
     let mut user_settings: UserSettings = Default::default();
-    
+
     // font
-    let font = load_ttf_font_from_bytes(FONT_BYTES)
-        .unwrap();
+    let font = load_ttf_font_from_bytes(FONT_BYTES).unwrap();
 
     // rectangles and landmarks
     let mut obstructions: Vec<Rect> = Vec::new();
@@ -57,27 +56,36 @@ async fn main() {
          */
         let viewport_height = screen_height();
         let viewport_width = screen_width();
-        
+
         let gt_camera = Camera2D {
             target: vec2(robot.x, robot.y),
-            zoom: vec2(2.0 / horizontal_units, 2.0 / -horizontal_units * viewport_width / viewport_height),
+            zoom: vec2(
+                2.0 / horizontal_units,
+                2.0 / -horizontal_units * viewport_width / viewport_height,
+            ),
             ..Default::default()
         };
-        
+
         let delta_time: f32 = get_frame_time();
 
         /*
          * user input
          */
-        if (is_cog_hovered() && is_mouse_button_released(MouseButton::Left)) || is_key_released(KeyCode::Escape) {
+        if (is_cog_hovered() && is_mouse_button_released(MouseButton::Left))
+            || is_key_released(KeyCode::Escape)
+        {
             pause = !pause;
         } else if !pause {
             input::movement_input(&mut robot, &cfg, delta_time);
             input::obstructions_input(&gt_camera, &mut obstructions, &cfg);
             input::landmarks_input(&gt_camera, &mut landmarks, &cfg);
         }
-        input::zoom_input(&mut horizontal_units, cfg.min_horizontal_units, cfg.max_horizontal_units);
-        
+        input::zoom_input(
+            &mut horizontal_units,
+            cfg.min_horizontal_units,
+            cfg.max_horizontal_units,
+        );
+
         /*
          * update logic
          */
@@ -86,23 +94,40 @@ async fn main() {
             robot.update(delta_time, &cfg, &obstructions);
 
             // ekf prediction step
-            ekf_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
-            fast_slam.predict(robot.linear_velocity, robot.angular_velocity, delta_time, &cfg);
-            
+            ekf_slam.predict(
+                robot.linear_velocity,
+                robot.angular_velocity,
+                delta_time,
+                &cfg,
+            );
+            fast_slam.predict(
+                robot.linear_velocity,
+                robot.angular_velocity,
+                delta_time,
+                &cfg,
+            );
+
             // ekf correction step
-            let observations = robot.sense(&landmarks,&obstructions, &cfg);
+            let observations = robot.sense(&landmarks, &obstructions, &cfg);
             ekf_slam.update(&observations, &cfg);
             fast_slam.update(&observations, &cfg);
         }
-        
+
         /*
          * simulation rendering
          */
         clear_background(Color::new(0.1, 0.1, 0.1, 1.0));
         set_camera(&gt_camera);
-        
+
         // gridlines
-        renderer::draw_gridlines(robot.x, robot.y, viewport_width, viewport_height, horizontal_units, cfg.grid_unit);
+        renderer::draw_gridlines(
+            robot.x,
+            robot.y,
+            viewport_width,
+            viewport_height,
+            horizontal_units,
+            cfg.grid_unit,
+        );
 
         // shadows
         renderer::draw_landmarks_shadows(&landmarks, cfg.landmark_radius);
@@ -117,21 +142,31 @@ async fn main() {
         renderer::draw_robot(robot.x, robot.y, robot.theta, cfg.robot_radius, BLUE, WHITE);
 
         // SLAM "ghosts"
-        if user_settings.show_ekf_state { renderer::draw_slam_state(&ekf_slam, cfg.robot_radius * 1.5) };
-        if user_settings.show_fast_state { renderer::draw_slam_state(&fast_slam, cfg.robot_radius * 1.5) };
+        if user_settings.show_ekf_state {
+            renderer::draw_slam_state(&ekf_slam, cfg.robot_radius * 1.5)
+        };
+        if user_settings.show_fast_state {
+            renderer::draw_slam_state(&fast_slam, cfg.robot_radius * 1.5)
+        };
 
         // draw landmark estimates
-        if user_settings.show_ekf_landmarks { renderer::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius); }
-        if user_settings.show_fast_landmarks { renderer::draw_slam_landmarks(&fast_slam, cfg.landmark_radius); }
+        if user_settings.show_ekf_landmarks {
+            renderer::draw_slam_landmarks(&ekf_slam, cfg.landmark_radius);
+        }
+        if user_settings.show_fast_landmarks {
+            renderer::draw_slam_landmarks(&fast_slam, cfg.landmark_radius);
+        }
 
         /*
          * HUD
          */
         set_default_camera();
 
-        if pause { hud::draw_settings(&font, &mut user_settings); }
+        if pause {
+            hud::draw_settings(&font, &mut user_settings);
+        }
         hud::draw_legend(&font);
-        
+
         hud::draw_cog();
 
         next_frame().await

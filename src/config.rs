@@ -10,12 +10,12 @@ pub struct Config {
     // process noise scaling factors
     pub real_stdev_linear: f32,
     pub real_stdev_angular: f32,
-    
+
     // sensor constants
     pub sensor_range: f32,
     pub real_stdev_range: f32,
     pub real_stdev_bearing: f32,
-    
+
     // decay factor (friction) scalings
     pub drag_linear: f32,
     pub drag_angular: f32,

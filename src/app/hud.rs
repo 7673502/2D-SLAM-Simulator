@@ -1,7 +1,7 @@
-use macroquad::prelude::*;
+use super::{FONT_SIZE, LINE_SPACING};
 use crate::app::user_settings::UserSettings;
 use crate::slam::{EkfSlam, FastSlam};
-use super::{FONT_SIZE, LINE_SPACING};
+use macroquad::prelude::*;
 
 const COG_X: f32 = 30.0;
 const COG_Y: f32 = 30.0;
@@ -12,11 +12,7 @@ pub fn draw_legend(font: &Font) {
     let right_offset = screen_width() - 115.0;
     let top_offset = screen_height() - 20.0;
 
-
-    let algorithms = [
-        ("FastSLAM", FastSlam::COLOR),
-        ("EKF-SLAM", EkfSlam::COLOR)
-    ];
+    let algorithms = [("FastSLAM", FastSlam::COLOR), ("EKF-SLAM", EkfSlam::COLOR)];
 
     for (i, (name, color)) in algorithms.iter().enumerate() {
         draw_text_ex(
@@ -28,14 +24,14 @@ pub fn draw_legend(font: &Font) {
                 font_size: FONT_SIZE,
                 color: LIGHTGRAY,
                 ..Default::default()
-            }
+            },
         );
         draw_rectangle(
             right_offset - 25.0,
             top_offset - 17.5 - (i as f32) * LINE_SPACING,
             20.0,
             20.0,
-            *color
+            *color,
         );
     }
 }
@@ -67,7 +63,7 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
             offset: vec2(0.5, 0.5),
             color: Color::new(0.05, 0.05, 0.05, 0.9),
             ..Default::default()
-        }
+        },
     );
 
     draw_text_ex(
@@ -78,7 +74,7 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
             font: Some(font),
             font_size: FONT_SIZE,
             ..Default::default()
-        }
+        },
     );
 
     for (i, (label, value)) in text.iter_mut().enumerate() {
@@ -89,10 +85,10 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
 
         // check if hovered
         let (mouse_x, mouse_y) = mouse_position();
-        let is_hovered = mouse_x < panel_center_x + w / 2.0 - padding &&
-                         mouse_x > checkbox_x - checkbox_size / 2.0 &&
-                         mouse_y < checkbox_y + checkbox_size / 2.0 &&
-                         mouse_y > checkbox_y - checkbox_size / 2.0;
+        let is_hovered = mouse_x < panel_center_x + w / 2.0 - padding
+            && mouse_x > checkbox_x - checkbox_size / 2.0
+            && mouse_y < checkbox_y + checkbox_size / 2.0
+            && mouse_y > checkbox_y - checkbox_size / 2.0;
 
         if is_hovered && is_mouse_button_released(MouseButton::Left) {
             **value = !**value;
@@ -108,7 +104,7 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
                 checkbox_x + checkbox_size / 4.0,
                 checkbox_y - checkbox_size / 4.0,
                 2.0,
-                color
+                color,
             );
         }
         draw_rectangle_lines_ex(
@@ -117,11 +113,11 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
             checkbox_size,
             checkbox_size,
             2.0,
-            DrawRectangleParams { 
+            DrawRectangleParams {
                 offset: vec2(0.5, 0.5),
                 color,
                 ..Default::default()
-            }
+            },
         );
         draw_text_ex(
             label,
@@ -132,16 +128,19 @@ pub fn draw_settings(font: &Font, user_settings: &mut UserSettings) {
                 font_size: FONT_SIZE,
                 color,
                 ..Default::default()
-            }
+            },
         );
-
     }
 }
 
 pub fn draw_cog() {
     let effective_radius = COG_R + COG_THICKNESS;
-    let color = if is_cog_hovered() { DARKGRAY } else { LIGHTGRAY };
-    
+    let color = if is_cog_hovered() {
+        DARKGRAY
+    } else {
+        LIGHTGRAY
+    };
+
     draw_circle_lines(COG_X, COG_Y, COG_R, COG_THICKNESS, color);
 
     for i in 0..8 {
@@ -151,11 +150,11 @@ pub fn draw_cog() {
             COG_Y + effective_radius * angle.sin(),
             COG_THICKNESS,
             COG_THICKNESS,
-            DrawRectangleParams { 
+            DrawRectangleParams {
                 offset: vec2(0.5, 0.5),
                 rotation: angle,
-                color
-            }
+                color,
+            },
         )
     }
 }
@@ -164,9 +163,8 @@ pub fn is_cog_hovered() -> bool {
     let (mouse_x, mouse_y) = mouse_position();
     let effective_radius = COG_R + COG_THICKNESS;
 
-    mouse_x > COG_X - effective_radius &&
-    mouse_y > COG_Y - effective_radius &&
-    mouse_x < COG_X + effective_radius && 
-    mouse_y < COG_Y + effective_radius
+    mouse_x > COG_X - effective_radius
+        && mouse_y > COG_Y - effective_radius
+        && mouse_x < COG_X + effective_radius
+        && mouse_y < COG_Y + effective_radius
 }
-
